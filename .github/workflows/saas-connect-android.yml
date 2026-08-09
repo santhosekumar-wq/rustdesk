@@ -89,6 +89,29 @@ jobs:
           echo "--- after patch ---"
           grep -n 'pub const RENDEZVOUS_SERVERS\|pub const RS_PUB_KEY' "$F"
 
+      - name: Generate SAAS Connect app icon from live logo
+        run: |
+          set -e
+          sudo apt-get install -y imagemagick
+          curl -fsSL -o /tmp/logo.png https://connect.santhoshku.online/assets/logo.png
+          identify /tmp/logo.png
+          RES_DIR=flutter/android/app/src/main/res
+          declare -A SIZES=( [mdpi]=48 [hdpi]=72 [xhdpi]=96 [xxhdpi]=144 [xxxhdpi]=192 )
+          for density in "${!SIZES[@]}"; do
+            size=${SIZES[$density]}
+            mkdir -p "$RES_DIR/mipmap-$density"
+            convert /tmp/logo.png -resize ${size}x${size} "$RES_DIR/mipmap-$density/ic_launcher.png"
+            convert /tmp/logo.png -resize ${size}x${size} \( -size ${size}x${size} xc:none -fill white -draw "circle $((size/2)),$((size/2)) $((size/2)),0" \) -compose DstIn -composite "$RES_DIR/mipmap-$density/ic_launcher_round.png"
+          done
+          declare -A FG_SIZES=( [mdpi]=108 [hdpi]=162 [xhdpi]=216 [xxhdpi]=324 [xxxhdpi]=432 )
+          for density in "${!FG_SIZES[@]}"; do
+            size=${FG_SIZES[$density]}
+            mkdir -p "$RES_DIR/mipmap-$density"
+            convert /tmp/logo.png -resize $((size*70/100))x$((size*70/100)) -gravity center -background none -extent ${size}x${size} "$RES_DIR/mipmap-$density/ic_launcher_foreground.png"
+          done
+          echo "Icon files generated:"
+          find "$RES_DIR" -iname "ic_launcher*"
+
       - name: Install flutter
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
