@@ -89,6 +89,15 @@ jobs:
           echo "--- after patch ---"
           grep -n 'pub const RENDEZVOUS_SERVERS\|pub const RS_PUB_KEY' "$F"
 
+      - name: Hardcode SAAS Connect app name (fixes in-app title still saying RustDesk)
+        run: |
+          set -e
+          F=libs/hbb_common/src/config.rs
+          grep -n 'APP_NAME: RwLock<String> = RwLock::new' "$F"
+          sed -i 's|APP_NAME: RwLock<String> = RwLock::new("RustDesk".to_owned())|APP_NAME: RwLock<String> = RwLock::new("SAAS Connect".to_owned())|' "$F"
+          echo "--- after patch ---"
+          grep -n 'APP_NAME: RwLock<String> = RwLock::new' "$F"
+
       - name: Generate SAAS Connect app icon from live logo
         run: |
           set -e
