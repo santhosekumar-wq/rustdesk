@@ -201,6 +201,6 @@ class _SaasConnectRegisterPageState extends State<SaasConnectRegisterPage> {
           hintText: hint,
         ),
       ),
-    }
+    );
   }
 }
