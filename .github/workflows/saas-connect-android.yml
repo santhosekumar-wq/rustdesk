@@ -78,6 +78,17 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Hardcode SAAS Connect server + key (zero manual setup for users)
+        run: |
+          set -e
+          F=libs/hbb_common/src/config.rs
+          grep -n 'pub const RENDEZVOUS_SERVERS' "$F"
+          grep -n 'pub const RS_PUB_KEY' "$F"
+          sed -i 's|pub const RENDEZVOUS_SERVERS: &\[&str\] = &\["rs-ny.rustdesk.com"\];|pub const RENDEZVOUS_SERVERS: \&[\&str] = \&["connect.santhoshku.online"];|' "$F"
+          sed -i 's|pub const RS_PUB_KEY: &str = "OeVuKk5nlHiXp+APNn0Y3pC1Iwpwn44JGqrQCsWqmBw=";|pub const RS_PUB_KEY: \&str = "pUTabQlV4mTp3dvWQtxEM4EWJWzPBzpsDPmEdeZgScQ=";|' "$F"
+          echo "--- after patch ---"
+          grep -n 'pub const RENDEZVOUS_SERVERS\|pub const RS_PUB_KEY' "$F"
+
       - name: Install flutter
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
